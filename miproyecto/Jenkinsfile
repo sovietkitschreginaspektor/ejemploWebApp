@@ -1,0 +1,37 @@
+pipeline{
+    agent any
+    stages{
+        stage('Repositorio'){
+            steps{
+                echo 'Clonamos respositorio'
+                git url: 'https://github.com/sovietkitschreginaspektor/ejemploWebApp'
+            }
+        }
+        stage('Empaquetado'){
+            steps{
+                echo 'Empaqueto mediante maven'
+                sh 'cd miproyecto;mvn package'
+            }
+        }
+        stage('Tomcat'){
+            steps{
+                echo 'tomcat 9'
+                deploy adapters: [tomcat9(credentialsId: 'bbf00ffe-c267-4e24-8892-e8904f89d57a', path: '', url: 'http://localhost:8082')], contextPath: 'prueba1', war: 'miproyecto/target/miproyecto.war'
+            }
+        }        
+    }
+    post{
+        always{
+            echo 'Yo me ejecuto siempre'
+        }
+        success{
+            echo 'Yo me ejecuto cuando todo ha ido bien'
+        }
+        failure{
+            echo 'Yo me ejecuto cuando ha ido mal'
+        }
+        changed{
+            echo 'Yo me ejecuto si esta ejecución no acaba en el mismo estado que la anterior ejecucion'
+        }
+    }
+}
